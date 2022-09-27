@@ -454,6 +454,7 @@ class ShellOutSpec:
                 File,
                 MultiOutputFile,
                 Directory,
+                Path,
                 int,
                 float,
                 bool,
@@ -465,6 +466,14 @@ class ShellOutSpec:
                     "has not been implemented in collect_additional_output"
                 )
             # assuming that field should have either default or metadata, but not both
+            try:
+                additional_out[fld.name] = getattr(inputs, fld.name)
+            except AttributeError:
+                pass
+            else:
+                if fld.type in (File, MultiOutputFile, Directory, Path):
+                    additional_out[fld.name] = Path(additional_out[fld.name]).absolute()
+                continue
             if (
                 fld.default is None or fld.default == attr.NOTHING
             ) and not fld.metadata:  # TODO: is it right?
